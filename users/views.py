@@ -80,18 +80,6 @@ def CreateUser(request):
         
 
     return Response(response_data, response_status)
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def UserList(request):
-    # print('On line 87 -->', request.user)
-    users = UserProfile.objects.all()
-
-    serialized_data = UserProfileViewSerializer(instance=users, many= True)
-
-    return Response(serialized_data.data, status=status.HTTP_200_OK)
-
     
 
 
@@ -157,3 +145,16 @@ class UserProfileDetail(APIView):
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+    
+class UserList(APIView):
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        
+        users = UserProfile.objects.all()
+
+        serialized_data = UserProfileViewSerializer(instance=users, many= True)
+
+        return Response(serialized_data.data, status=status.HTTP_200_OK)
