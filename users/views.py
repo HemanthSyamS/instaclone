@@ -8,6 +8,7 @@ from .serializers import UserCreateSerializer, UserProfileViewSerializer, UserPr
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.views import APIView
 
 # Create your views here.
 
@@ -91,53 +92,68 @@ def UserList(request):
 
     return Response(serialized_data.data, status=status.HTTP_200_OK)
 
+    
 
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def GetUser(request, pk=None):
-    user = UserProfile.objects.filter(id=pk).first()
 
-    if user:
-        serializer = UserProfileViewSerializer(instance=user, many=False)
+class UserProfileDetail(APIView):
+
+    authentication_classes = [JWTAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request, pk):
+        user = UserProfile.objects.filter(id=pk).first()
+
+        if user:
+            serializer = UserProfileViewSerializer(instance=user, many=False)
+            response_data = {
+                'data': serializer.data,
+                'errors': None
+            }
+            response_status= status.HTTP_200_OK
+        else : 
+            response_data = {
+                'data': None,
+                'errors': "User does not exist!"
+            }
+            response_status = status.HTTP_404_NOT_FOUND
+
+        return Response(data=response_data, status=response_status)
+ 
+
+    def post(self, request, pk):
+        
+        user_profile_serializer = UserProfileUpdateSerializer(instance=request.user.profile,
+                                                              data=request.data)
+        # print(user_profile_serializer)
         response_data = {
-            'data': serializer.data,
-            'errors': None
+            "data": None,
+            "errors": None
         }
-        response_status= status.HTTP_200_OK
-    else : 
+
+        if user_profile_serializer.is_valid():
+            user_profile = user_profile_serializer.save()
+
+            response_data['data'] = UserProfileViewSerializer(instance=user_profile).data
+            # print(response_data)
+
+            response_status = status.HTTP_200_OK
+
+        else:
+
+            response_data['errors'] = user_profile_serializer.errors
+            response_status = status.HTTP_400_BAD_REQUEST
+
+        return Response(response_data, status=response_status)
+    
+    def delete(self, request, pk):
+
+        user = request.user
+
+        user.delete()
+
         response_data = {
             'data': None,
-            'errors': "User does not exist!"
+            'message': f'user object {user.username} deleted successfully'
         }
-        response_status = status.HTTP_404_NOT_FOUND
 
-    return Response(data=response_data, status=response_status)
-
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def UpdateUserProfile(request):
-
-    user_profile_serializer = UserProfileUpdateSerializer(instance=request.user.profile,
-                                                              data=request.data)
-    # print(user_profile_serializer)
-    response_data = {
-        "data": None,
-        "errors": None
-    }
-
-    if user_profile_serializer.is_valid():
-        user_profile = user_profile_serializer.save()
-
-        response_data['data'] = UserProfileViewSerializer(instance=user_profile).data
-        # print(response_data)
-
-        response_status = status.HTTP_200_OK
-
-    else:
-
-        response_data['errors'] = user_profile_serializer.errors
-        response_status = status.HTTP_400_BAD_REQUEST
-
-    return Response(response_data, status=response_status)
+        return Response(response_data, status=status.HTTP_200_OK)

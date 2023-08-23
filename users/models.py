@@ -24,7 +24,7 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=False,
                                 related_name = 'profile')
-    profile_pic_url = models.ImageField(upload_to='profile_pic',blank=True)
+    profile_pic_url = models.ImageField(upload_to='profile_pic/',blank=True)
     bio = models.CharField(max_length=255, blank=True)
     is_verified = models.BooleanField(default=True)
     
