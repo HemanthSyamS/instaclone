@@ -64,31 +64,16 @@ class NetworkEdgeCreatonSerializer(ModelSerializer):
 
     class Meta:
         model = NetworkEdge
+        unique_together = ('from_user', 'to_user', )
         fields = ('from_user', 'to_user')
 
 
 
-# class NetworkEdgeViewSerializer(ModelSerializer):
+class NetworkEdgeViewSerializer(ModelSerializer):
 
-#     # from_user = UserProfileViewSerializer()
-#     to_user = UserProfileViewSerializer()
-
-#     class Meta :
-#         model = NetworkEdge
-#         fields = ('to_user', )
-
-class NetworkEdgeFollowingSerializer(ModelSerializer):
     # from_user = UserProfileViewSerializer()
-    to_user = UserProfileViewSerializer()   
+    to_user = UserProfileViewSerializer()
 
     class Meta :
         model = NetworkEdge
         fields = ('from_user', 'to_user', )
-
-class NetworkEdgeFollowerSerializer(ModelSerializer):
-    # from_user = UserProfileViewSerializer()
-    from_user = UserProfileViewSerializer()
-
-    class Meta :
-        model = NetworkEdge
-        fields = ('from_user', )
