@@ -18,7 +18,6 @@ urlpatterns  = [
 
     path('<int:pk>/', views.UserProfileDetail.as_view(), name = 'modify_user'),
 
-
-
+    path('edge/', views.UserNetworkEdgeView.as_view(), name = 'network_edge')
 
 ]

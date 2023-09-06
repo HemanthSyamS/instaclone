@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from .models import UserProfile
+from .models import UserProfile, NetworkEdge
 from rest_framework import serializers
 
 
@@ -58,3 +58,21 @@ class UserProfileUpdateSerializer(ModelSerializer):
     class Meta: 
         model = UserProfile
         fields = ('first_name','last_name', 'bio','profile_pic_url')
+
+
+class NetworkEdgeCreatonSerializer(ModelSerializer):
+
+    class Meta:
+        model = NetworkEdge
+        fields = ('from_user', 'to_user')
+
+
+
+class NetworkEdgeViewSerializer(ModelSerializer):
+
+    # from_user = UserProfileViewSerializer()
+    to_user = UserProfileViewSerializer()
+
+    class Meta :
+        model = NetworkEdge
+        fields = ('to_user', )
