@@ -14,11 +14,10 @@ urlpatterns  = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('login/', TokenObtainPairView.as_view(), name='login_api'),
 
-    path('list/', views.UserList, name = 'user_list'),
+    path('list/', views.UserList.as_view(), name = 'user_list'),
 
     path('<int:pk>/', views.UserProfileDetail.as_view(), name = 'modify_user'),
 
-
-
+    path('edge/', views.UserNetworkEdgeView.as_view(), name = 'network_edge')
 
 ]

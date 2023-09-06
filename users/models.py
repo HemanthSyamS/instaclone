@@ -27,5 +27,16 @@ class UserProfile(models.Model):
     profile_pic_url = models.ImageField(upload_to='profile_pic/',blank=True)
     bio = models.CharField(max_length=255, blank=True)
     is_verified = models.BooleanField(default=True)
+
+
+class NetworkEdge(models.Model):
+
+    from_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE,
+                                  related_name='following')
     
+    to_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, 
+                                related_name= 'followers')
+    
+    class Meta:
+        unique_together = ('from_user', 'to_user', )
     
