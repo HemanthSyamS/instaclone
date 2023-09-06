@@ -1,0 +1,3 @@
+git checkout -b <new-branch-name>
+git checkout -b <new-branch-name> <from-branch-name>
+git push -u origin <branch-name>

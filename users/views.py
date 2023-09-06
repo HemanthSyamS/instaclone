@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework import mixins, generics
-from .serializers import NetworkEdgeCreatonSerializer, NetworkEdgeViewSerializer
+from .serializers import NetworkEdgeCreatonSerializer, NetworkEdgeFollowingSerializer, NetworkEdgeFollowerSerializer
 # Create your views here.
 
 def index(request):
@@ -174,18 +174,25 @@ class UserNetworkEdgeView(mixins.CreateModelMixin, mixins.ListModelMixin,
     def get_serializer_class(self):
 
         if self.request.method == 'GET':
-            return NetworkEdgeViewSerializer
+            print('on line 177', self.request.query_params['direction'])
+            print(self.request.query_params['direction']=='following')
+            if self.request.query_params['direction']== 'following':
+                return NetworkEdgeFollowingSerializer
+            return NetworkEdgeFollowerSerializer
         
         return self.serializer_class
     
 
     def query_set(self):
+
         edge_direction = self.request.query_params['direction']
 
         if edge_direction == 'followers':
+            # NetworkEdge.objects.all().filter(to_user = self.request.user.profile)
             return self.query_set.filter(to_user = self.request.user.profile)
         
         elif edge_direction == 'following':
+            print('strange panda')
             return self.query_set.filter(from_user = self.request.user.profile)
 
     def get(self, request, *args, **kwargs):
