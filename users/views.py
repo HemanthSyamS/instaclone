@@ -61,8 +61,7 @@ def CreateUser(request):
     serializer = UserCreateSerializer(data=request.data)
 
     response_data = {
-        "data": None,
-        "errors" : None
+        
     }
 
     if serializer.is_valid():
@@ -115,8 +114,7 @@ class UserProfileDetail(APIView):
                                                               data=request.data)
         # print(user_profile_serializer)
         response_data = {
-            "data": None,
-            "errors": None
+            
         }
 
         if user_profile_serializer.is_valid():
@@ -132,7 +130,7 @@ class UserProfileDetail(APIView):
             response_data['errors'] = user_profile_serializer.errors
             response_status = status.HTTP_400_BAD_REQUEST
 
-        return Response(response_data, status=response_status)
+        return Response(data=response_data, status=response_status)
     
     def delete(self, request, pk):
 
