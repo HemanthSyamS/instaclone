@@ -68,11 +68,28 @@ class NetworkEdgeCreatonSerializer(ModelSerializer):
         fields = ('from_user', 'to_user')
 
 
+class UserProfileNetworkViewSerializer(ModelSerializer):
+    
+    user = UserViewSerializer()
+    follower_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
+
+    def get_follower_count(self, obj):
+        return obj.followers.count()
+    
+    def get_following_count(self, obj):
+        return obj.following.count()
+
+    class Meta:
+        model = UserProfile
+        fields = ('id', 'user', 'following_count', 'follower_count','is_verified', 'profile_pic_url',  )
+        # exclude = ('bio', 'user')
+
 
 class NetworkEdgeFollowingSerializer(ModelSerializer):
 
     # from_user = UserProfileViewSerializer()
-    to_user = UserProfileViewSerializer()
+    to_user = UserProfileNetworkViewSerializer()
 
     class Meta :
         model = NetworkEdge
@@ -81,8 +98,10 @@ class NetworkEdgeFollowingSerializer(ModelSerializer):
 class NetworkEdgeFollowersSerializer(ModelSerializer):
 
     # from_user = UserProfileViewSerializer()
-    from_user = UserProfileViewSerializer()
+    from_user = UserProfileNetworkViewSerializer()
 
     class Meta :
         model = NetworkEdge
         fields = ('from_user',  )
+
+
