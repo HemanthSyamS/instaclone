@@ -209,7 +209,7 @@ class UserNetworkEdgeView(mixins.CreateModelMixin, mixins.ListModelMixin,
         
         if network_edge.exists():
             network_edge.delete()
-            message = f'user unfollowed successfully'
+            message = f'user {request.user} unfollowed successfully'
         else:
             message = 'no edge found'
 
