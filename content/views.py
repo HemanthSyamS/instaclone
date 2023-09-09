@@ -32,3 +32,15 @@ class PostMediaView(mixins.CreateModelMixin, generics.GenericAPIView):
 
     def put(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+
+class UserPostDetailUpdateView(mixins.UpdateModelMixin, generics.GenericAPIView):
+    
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [JWTAuthentication]
+
+    serializer_class = UserPostCreateSerializser
+    queryset = UserPost.objects.all()
+    # print('line 44----------->',queryset)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)

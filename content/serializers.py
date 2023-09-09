@@ -13,7 +13,7 @@ class UserPostCreateSerializser(ModelSerializer):
 
     class Meta :
         model = UserPost
-        fields = ('caption_text', 'location', 'id' )
+        fields = ('caption_text', 'location', 'id', 'is_published', )
 
 
 class PostMediaCreateSerializer(ModelSerializer):
