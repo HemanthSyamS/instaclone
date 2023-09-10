@@ -3,12 +3,13 @@ from .models import UserPost
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import generics
-from .serializers import UserPostCreateSerializser, PostMediaCreateSerializer
+from .serializers import UserPostCreateSerializser, PostMediaCreateSerializer, PostFeedSerializer, PostMediaViewSerializer
 from rest_framework import mixins
 # Create your views here.
 
 
-class UserPostCreateFeed(mixins.CreateModelMixin, generics.GenericAPIView):
+class UserPostCreateFeed(mixins.CreateModelMixin,mixins.ListModelMixin,
+                         generics.GenericAPIView ):
 
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JWTAuthentication]
@@ -19,8 +20,18 @@ class UserPostCreateFeed(mixins.CreateModelMixin, generics.GenericAPIView):
     def get_serializer_context(self):
         return {'current_user' : self.request.user.profile}
 
+    def get_serializer_class(self):
+        
+        if self.request.method == 'GET':
+            return PostFeedSerializer
+
+        return self.serializer_class
+
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 class PostMediaView(mixins.CreateModelMixin, generics.GenericAPIView):
