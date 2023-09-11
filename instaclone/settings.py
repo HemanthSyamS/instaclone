@@ -26,6 +26,11 @@ SECRET_KEY = 'django-insecure-fbeueoos5k9z=*zxes)f$rmr_(8bpn(6hrl7-j_y^a7=aruptt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 2
+}
+
 if DEBUG: 
     SIMPLE_JWT = {
         "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
