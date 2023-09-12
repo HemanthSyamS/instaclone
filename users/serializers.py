@@ -39,7 +39,7 @@ class UserProfileViewSerializer(ModelSerializer):
 class UserProfileUpdateSerializer(ModelSerializer):
 
     first_name = serializers.CharField()
-    last_name = serializers.CharField()
+    last_name = serializers.CharField(default='ne')
 
     def update(self, instance, validated_data):
         user = instance.user

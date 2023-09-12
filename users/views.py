@@ -83,7 +83,7 @@ def CreateUser(request):
     
 
 
-class UserProfileDetail(APIView):
+class UserProfileDetail1(APIView):
 
     authentication_classes = [JWTAuthentication, ]
     permission_classes = [IsAuthenticated, ]
@@ -144,6 +144,36 @@ class UserProfileDetail(APIView):
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+class UserProfileDetail(generics.GenericAPIView, mixins.DestroyModelMixin,
+                        mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserProfileViewSerializer
+
+    queryset = UserProfile.objects.all()
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        if self.request.method == 'DELETE':
+            return User.objects.all().filter(pk=pk)
+        return self.queryset.filter(pk=pk)
+    
+    def get_serializer_class(self):
+        if self.request.method == 'PUT':
+            return UserProfileUpdateSerializer
+        return self.serializer_class
+
+    
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+    
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
     
 class UserList(APIView):
 
