@@ -26,6 +26,11 @@ SECRET_KEY = 'django-insecure-fbeueoos5k9z=*zxes)f$rmr_(8bpn(6hrl7-j_y^a7=aruptt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 2
+}
+
 if DEBUG: 
     SIMPLE_JWT = {
         "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
@@ -39,6 +44,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'users',
+    'content',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -84,9 +90,9 @@ WSGI_APPLICATION = 'instaclone.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'hemanth',
+        'NAME': 'instaclone_db',
+        'USER': 'Hemanthsyam',
+        'PASSWORD': 'Hemanth',
         'HOST': 'localhost',
         'PORT': '5432'
     }
@@ -117,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -130,8 +136,8 @@ USE_TZ = True
 STATIC_URL = 'assets/'
 STATIC_ROOT = BASE_DIR/ 'product_static_assets/'
 
-MEDIA_ROOT = BASE_DIR/ 'media/'
-# MEDIA_URL = ''
+MEDIA_ROOT = BASE_DIR/ 'media'
+MEDIA_URL = ''
 
 
 # Default primary key field type

@@ -22,9 +22,14 @@ class TimeStamp(models.Model):
 
 class UserProfile(models.Model):
 
+    def media_name(instance, filename):
+        ext = filename.split('.')[-1]
+
+        return f'profile_pic/{instance.user.id}_{instance.user.username}.{ext}'
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=False,
                                 related_name = 'profile')
-    profile_pic_url = models.ImageField(upload_to='profile_pic/',blank=True)
+    profile_pic_url = models.ImageField(upload_to= media_name, blank=True)
     bio = models.CharField(max_length=255, blank=True)
     is_verified = models.BooleanField(default=True)
 
