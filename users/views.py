@@ -57,7 +57,6 @@ def signup(request):
 @api_view(['POST'])
 def CreateUser(request):
 
-    # print('On line 54',request.data)
     serializer = UserCreateSerializer(data=request.data)
 
     response_data = {
@@ -81,69 +80,6 @@ def CreateUser(request):
 
     return Response(response_data, response_status)
     
-
-
-class UserProfileDetail1(APIView):
-
-    authentication_classes = [JWTAuthentication, ]
-    permission_classes = [IsAuthenticated, ]
-
-    def get(self, request, pk):
-        user = UserProfile.objects.filter(id=pk).first()
-
-        if user:
-            serializer = UserProfileViewSerializer(instance=user, many=False)
-            response_data = {
-                'data': serializer.data,
-                'errors': None
-            }
-            response_status= status.HTTP_200_OK
-        else : 
-            response_data = {
-                'data': None,
-                'errors': "User does not exist!"
-            }
-            response_status = status.HTTP_404_NOT_FOUND
-
-        return Response(data=response_data, status=response_status)
- 
-
-    def post(self, request, pk):
-        
-        user_profile_serializer = UserProfileUpdateSerializer(instance=request.user.profile,
-                                                              data=request.data)
-        # print(user_profile_serializer)
-        response_data = {
-            
-        }
-
-        if user_profile_serializer.is_valid():
-            user_profile = user_profile_serializer.save()
-
-            response_data['data'] = UserProfileViewSerializer(instance=user_profile).data
-            # print(response_data)
-
-            response_status = status.HTTP_200_OK
-
-        else:
-
-            response_data['errors'] = user_profile_serializer.errors
-            response_status = status.HTTP_400_BAD_REQUEST
-
-        return Response(data=response_data, status=response_status)
-    
-    def delete(self, request, pk):
-
-        user = request.user
-
-        user.delete()
-
-        response_data = {
-            'data': None,
-            'message': f'user object {user.username} deleted successfully'
-        }
-
-        return Response(response_data, status=status.HTTP_200_OK)
 
 class UserProfileDetail(generics.GenericAPIView, mixins.DestroyModelMixin,
                         mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
@@ -170,9 +106,16 @@ class UserProfileDetail(generics.GenericAPIView, mixins.DestroyModelMixin,
         return self.retrieve(request, *args, **kwargs)
     
     def put(self, request, *args, **kwargs):
+        pk=self.kwargs.get('pk')
+        if request.user.id !=pk:
+            return Response(f"{request.user.username} it's not your profile you are tyring to upload", status=status.HTTP_204_NO_CONTENT)
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        if request.user.id !=pk:
+            message = f"{request.user} you don't have permissions to delete another user."
+            return Response(message, status=status.HTTP_204_NO_CONTENT)
         return self.destroy(request, *args, **kwargs)
     
 class UserList(APIView):
@@ -193,7 +136,6 @@ class UserNetworkEdgeView(mixins.CreateModelMixin, mixins.ListModelMixin,
                           generics.GenericAPIView):
 
     queryset = NetworkEdge.objects.all()
-    # print(queryset)   
     serializer_class = NetworkEdgeCreatonSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -219,7 +161,6 @@ class UserNetworkEdgeView(mixins.CreateModelMixin, mixins.ListModelMixin,
             return self.queryset.filter(to_user = self.request.user.profile)
         
         elif edge_direction == 'following':
-            print('strange panda')
             return self.queryset.filter(from_user = self.request.user.profile)
 
     def get(self, request, *args, **kwargs):
@@ -235,11 +176,10 @@ class UserNetworkEdgeView(mixins.CreateModelMixin, mixins.ListModelMixin,
 
         network_edge = NetworkEdge.objects.filter(from_user = request.user.profile,
                                                   to_user = request.data['to_user'])
-        # print(network_edge)
-        
+                                                          
         if network_edge.exists():
             network_edge.delete()
-            message = f'user {request.user} unfollowed successfully'
+            message = f'user {User.objects.get(id=request.data["to_user"])} unfollowed successfully'
         else:
             message = 'no edge found'
 

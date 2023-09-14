@@ -17,11 +17,11 @@ class UserPostCreateFeed(mixins.CreateModelMixin,mixins.ListModelMixin,
                          generics.GenericAPIView ):
 
     permission_classes = [IsAuthenticated, ]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication, ]
 
     queryset = UserPost.objects.all()
     serializer_class = UserPostCreateSerializser
-    filter_backends = [CurrentUserFollowingFilterBackend]
+    filter_backends = [CurrentUserFollowingFilterBackend, ]
 
     def get_serializer_context(self):
         return {'current_user' : self.request.user.profile}
@@ -59,7 +59,6 @@ class UserPostDetailUpdateView(mixins.UpdateModelMixin, mixins.RetrieveModelMixi
 
     serializer_class = UserPostCreateSerializser
     queryset = UserPost.objects.all()
-    # print('line 44----------->',queryset)
 
     def get_serializer_class(self):
 
@@ -85,9 +84,8 @@ class UserPostDetailUpdateView(mixins.UpdateModelMixin, mixins.RetrieveModelMixi
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
-    def delete(self, request, pk):
-        # print(f'user post {request.id}', request.user.profile.post.filter(id=pk))
-        # print(f'post deleted by {request.user.username}')
-        return Response({'data':None, 'message':'post deleted by user'}, status=status.HTTP_200_OK)
-
-        return self.destroy(request, pk,response_data="success")
+    def delete(self, request, *args, **kwargs):
+        pk=self.kwargs.get('pk')
+        if request.user.id !=pk:
+            return Response(f"{request.user.username} you can only delete posts you  published.", status=status.HTTP_204_NO_CONTENT)
+        return self.destroy(request, *args, **kwargs)
