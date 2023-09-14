@@ -26,22 +26,21 @@ class PostMediaCreateSerializer(ModelSerializer):
 
 
 class PostMediaViewSerializer(ModelSerializer):
-    # print('this is line 29-------------------->')
 
     class Meta :
         model = PostMedia
-        # exclude = ('post', )
-        fields = '__all__'
+        exclude = ('post', )
+        # fields = '__all__'
 
 class PostFeedSerializer(ModelSerializer):
 
     author = UserProfileViewSerializer()
-    media = PostMediaViewSerializer(many=True, read_only=True, source='content')
+    media = PostMediaViewSerializer(many=True, source='content')
 
 
     class Meta : 
         model = UserPost
-        fields = ('caption_text', 'location', 'is_published', 'media', 'author', )
-        # include = ('media', )
+        fields = '__all__'
+        include = ('author', 'media', )
         
 
