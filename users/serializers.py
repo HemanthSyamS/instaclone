@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from .models import UserProfile, NetworkEdge
 from rest_framework import serializers
+from content.models import UserPost
 
 
 class UserCreateSerializer(ModelSerializer):
@@ -103,5 +104,11 @@ class NetworkEdgeFollowersSerializer(ModelSerializer):
     class Meta :
         model = NetworkEdge
         fields = ('from_user',  )
+
+class UserPostViewSerializer(ModelSerializer):
+
+    class Meta:
+        model = UserPost
+        fields = '__all__'
 
 
