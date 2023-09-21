@@ -1,15 +1,15 @@
 from django.shortcuts import render
-from .models import UserPost
+from .models import UserPost, PostLikes, PostComments
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import generics
-from .serializers import UserPostCreateSerializser, PostMediaCreateSerializer, PostFeedSerializer, PostMediaViewSerializer
+from .serializers import UserPostCreateSerializer, PostMediaCreateSerializer, PostFeedSerializer, PostMediaViewSerializer
 from rest_framework import mixins
 from .filters import CurrentUserFollowingFilterBackend
 from rest_framework.response import Response
 from rest_framework import status
-
-
+from rest_framework import viewsets
+from .serializers import PostLikeCreateSerializer, PostLikesViewSerializer
 # Create your views here.
 
 
@@ -20,7 +20,7 @@ class UserPostCreateFeed(mixins.CreateModelMixin,mixins.ListModelMixin,
     authentication_classes = [JWTAuthentication, ]
 
     queryset = UserPost.objects.all()
-    serializer_class = UserPostCreateSerializser
+    serializer_class = UserPostCreateSerializer
     filter_backends = [CurrentUserFollowingFilterBackend, ]
 
     def get_serializer_context(self):
@@ -57,7 +57,7 @@ class UserPostDetailUpdateView(mixins.UpdateModelMixin, mixins.RetrieveModelMixi
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [JWTAuthentication]
 
-    serializer_class = UserPostCreateSerializser
+    serializer_class = UserPostCreateSerializer
     queryset = UserPost.objects.all()
 
     def get_serializer_class(self):
@@ -89,3 +89,30 @@ class UserPostDetailUpdateView(mixins.UpdateModelMixin, mixins.RetrieveModelMixi
         if request.user.id !=pk:
             return Response(f"{request.user.username} you can only delete posts you  published.", status=status.HTTP_204_NO_CONTENT)
         return self.destroy(request, *args, **kwargs)
+
+class PostLikeViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
+                        mixins.ListModelMixin, viewsets.GenericViewSet):
+
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [JWTAuthentication]
+
+    queryset = PostLikes.objects.all()
+    serializer_class = PostLikeCreateSerializer
+
+    def get_serializer_context(self):
+        return {'current_user':self.request.user.profile}
+    
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PostLikesViewSerializer
+
+    def list(self, request):
+        post_likes = self.queryset.filter(post_id = request.query_params['post_id'])
+        page = self.paginate_queryset(post_likes)
+
+        if page:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(post_likes, many = True)
+             
+        return Response(serializer.data)

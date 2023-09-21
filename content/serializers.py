@@ -1,10 +1,10 @@
 from rest_framework.serializers import ModelSerializer
-from .models import UserPost, PostMedia
+from .models import UserPost, PostMedia, PostLikes
 from users.serializers import UserProfileViewSerializer
+from users.models import UserProfile
+from rest_framework import serializers
 
-
-
-class UserPostCreateSerializser(ModelSerializer):
+class UserPostCreateSerializer(ModelSerializer):
 
     def create(self, validated_data):
 
@@ -42,5 +42,27 @@ class PostFeedSerializer(ModelSerializer):
         model = UserPost
         fields = '__all__'
         include = ('author', 'media', )
-        
 
+class PostLikeCreateSerializer(ModelSerializer):
+
+    def create(self, validated_data):
+        validated_data['liked_by'] = self.context['current_user']
+        
+        return PostLikes.objects.create(**validated_data)
+
+    class Meta:
+        model = PostLikes
+        fields = ('id', 'post', )
+
+class PostLikesViewSerializer(ModelSerializer):
+
+    liked_by = serializers.SerializerMethodField()
+    post = UserPostCreateSerializer()
+
+    def get_liked_by(self, obj):
+        return {'id':obj.liked_by.user.id,
+                'username': obj.liked_by.user.username}
+
+    class Meta:
+        model = PostLikes
+        fields = ('post','liked_by', )
