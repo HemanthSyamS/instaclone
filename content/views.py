@@ -9,7 +9,7 @@ from .filters import CurrentUserFollowingFilterBackend
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
-from .serializers import PostLikeCreateSerializer, PostLikesViewSerializer
+from .serializers import PostLikeCreateSerializer, PostLikesViewSerializer, PostCommentsCreateSerializer
 # Create your views here.
 
 
@@ -114,5 +114,28 @@ class PostLikeViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(post_likes, many = True)
+             
+        return Response(serializer.data)
+
+class PostCommentsViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet, 
+                            mixins.ListModelMixin, mixins.DestroyModelMixin):
+
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [JWTAuthentication]
+
+    queryset = PostComments.objects.all()
+    serializer_class = PostCommentsCreateSerializer
+
+    def get_serializer_context(self):
+        return {'current_user': self.request.user.profile}
+
+    def list(self, request):
+        post_comments = self.queryset.filter(post_id = request.query_params['post_id'])
+        page = self.paginate_queryset(post_comments)
+
+        if page:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(post_comments, many = True)
              
         return Response(serializer.data)

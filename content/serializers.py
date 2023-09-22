@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import UserPost, PostMedia, PostLikes
+from .models import UserPost, PostMedia, PostLikes, PostComments
 from users.serializers import UserProfileViewSerializer
 from users.models import UserProfile
 from rest_framework import serializers
@@ -66,3 +66,20 @@ class PostLikesViewSerializer(ModelSerializer):
     class Meta:
         model = PostLikes
         fields = ('post','liked_by', )
+
+class PostCommentsCreateSerializer(ModelSerializer):
+
+    commented_by = serializers.SerializerMethodField()
+
+    def get_commented_by(self, obj):
+        return {'id':obj.author.user.id,
+                'username': obj.author.user.username}
+
+    def create(self, validated_data):
+        validated_data['author'] = self.context['current_user']
+        
+        return PostComments.objects.create(**validated_data)
+
+    class Meta:
+        model = PostComments
+        fields = ('id', 'post', 'text', 'commented_by'  )
