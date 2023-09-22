@@ -18,6 +18,8 @@ urlpatterns  = [
 
     path('<int:pk>/', views.UserProfileDetail.as_view(), name = 'modify_user'),
 
-    path('edge/', views.UserNetworkEdgeView.as_view(), name = 'network_edge')
+    path('edge/', views.UserNetworkEdgeView.as_view(), name = 'network_edge'), 
+    path('<int:pk>/posts/', views.UserPostView.as_view(), name = 'user_post_view'),
+
 
 ]
