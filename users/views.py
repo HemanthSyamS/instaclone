@@ -11,6 +11,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework import mixins, generics
 from .serializers import NetworkEdgeCreatonSerializer, NetworkEdgeFollowingSerializer, NetworkEdgeFollowersSerializer
+from .serializers import UserPostViewSerializer
+from content.models import UserPost
 # Create your views here.
 
 def index(request):
@@ -186,3 +188,22 @@ class UserNetworkEdgeView(mixins.CreateModelMixin, mixins.ListModelMixin,
         return Response({'data':None, 'message':message}, status=status.HTTP_200_OK)
         
         return self.destroy(request, *args, **kwargs)
+
+
+class UserPostView(generics.GenericAPIView, mixins.ListModelMixin):
+
+    authentication_classes = [JWTAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = UserPostViewSerializer
+    # queryset = UserPost.objects.all()
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return UserPost.objects.filter(author__pk=pk, is_published=True)
+    
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    
+
